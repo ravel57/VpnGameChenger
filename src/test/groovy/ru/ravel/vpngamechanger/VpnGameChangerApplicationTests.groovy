@@ -1,10 +1,10 @@
-package ru.ravel.vpngamechenger
+package ru.ravel.vpngamechanger
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-class VpnGameChengerApplicationTests {
+class VpnGameChangerApplicationTests {
 
 	@Test
 	void contextLoads() {
