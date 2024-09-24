@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'ru.ravel'
-version = '0.0.1-SNAPSHOT'
+version = '0.1'
 
 java {
 	sourceCompatibility = '17'
@@ -22,12 +22,22 @@ repositories {
 }
 
 dependencies {
+//	core
 	implementation 'org.springframework.boot:spring-boot-starter-groovy-templates'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.apache.groovy:groovy'
-	compileOnly 'org.projectlombok:lombok'
+
+//	db
 	runtimeOnly 'org.postgresql:postgresql'
+
+//	lombok
+	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+//	thymeleaf
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+//	tests
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
