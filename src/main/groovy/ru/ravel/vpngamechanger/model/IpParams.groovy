@@ -4,6 +4,7 @@ class IpParams {
 	String gateWay
 	String processName
 
+
 	boolean equals(o) {
 		if (this.is(o)) return true
 		if (o == null || getClass() != o.class) return false
@@ -19,4 +20,5 @@ class IpParams {
 		result = 31 * result + (processName != null ? processName.hashCode() : 0)
 		return result
 	}
+
 }

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Async
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import ru.ravel.vpngamechanger.component.SaveRunner
 import ru.ravel.vpngamechanger.model.IpParams
 import ru.ravel.vpngamechanger.model.ParsedProcess
 
@@ -14,7 +15,7 @@ import java.util.concurrent.TimeUnit
 @Service
 class ConsoleParserService {
 
-	private final Set<IpParams> ipParams = new HashSet<>()
+	private final Set<IpParams> ipParams = SaveRunner.ipParams
 	private final Set<String> ipToRemove = new HashSet<>()
 	private final Logger logger = LoggerFactory.getLogger(this.class)
 
@@ -72,6 +73,7 @@ class ConsoleParserService {
 
 	void setIpParams(IpParams ipParams) {
 		this.ipParams.add(ipParams)
+		SaveRunner.addIpParams(ipParams)
 	}
 
 
@@ -108,10 +110,15 @@ class ConsoleParserService {
 	}
 
 	Set<IpParams> getRoutingIpParams() {
-		return ipParams
+		if (ipParams.isEmpty()) {
+			return SaveRunner.ipParams
+		} else {
+			return ipParams
+		}
 	}
 
 	void deleteIpParams(IpParams ipParams) {
 		this.ipParams.remove(ipParams)
+		SaveRunner.removeIpParams(ipParams)
 	}
 }

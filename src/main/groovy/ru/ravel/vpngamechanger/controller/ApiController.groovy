@@ -9,7 +9,6 @@ import ru.ravel.vpngamechanger.serice.ConsoleParserService
 
 @RestController
 @RequestMapping("/api/v1")
-@RequiredArgsConstructor
 @CrossOrigin
 class ApiController {
 
