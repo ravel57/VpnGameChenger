@@ -21,7 +21,7 @@ class ConsoleParserService {
 	private static final boolean isWindows = System.getProperty("os.name").startsWith("Windows")
 
 
-	private static ArrayList<String[]> getProcess(String[] processParams) {
+	private static ArrayList<String[]> executeProcess(String[] processParams) {
 		def process = new ProcessBuilder().command(processParams).start()
 		def output = new ArrayList<String[]>()
 		def reader = new BufferedReader(new InputStreamReader(process.getInputStream()))
@@ -37,8 +37,8 @@ class ConsoleParserService {
 	Set<ParsedProcess> getConsoleInfoByName(String name) {
 		try {
 			if (isWindows) {
-				def IpPorts = getProcess("netstat", "-ano")
-				def pids = getProcess("tasklist")
+				def IpPorts = executeProcess("netstat", "-ano")
+				def pids = executeProcess("tasklist")
 				def list = IpPorts.collect {
 					str -> new ParsedProcess(str, pids)
 				}.findAll {
@@ -48,7 +48,7 @@ class ConsoleParserService {
 				return list.toSet()
 			} else {
 				def target = System.getenv("target_device")
-				def ipPorts = getProcess("lsof", "-nPi", "@$target")
+				def ipPorts = executeProcess("lsof", "-nPi", "@$target")
 				List<ParsedProcess> list = new ArrayList<>()
 				for (i in 1..<ipPorts.size()) {
 					list.add(new ParsedProcess(ipPorts[0], ipPorts[i]))
@@ -83,7 +83,7 @@ class ConsoleParserService {
 				try {
 					if (isWindows) {
 						String[] processParams = ["route", "add", it.ip, "MASK", "255.255.255.255", ipParams.gateWay]
-						getProcess(processParams)
+						executeProcess(processParams)
 						println(processParams.join(" "))
 					}
 				} catch (e) {
@@ -101,10 +101,17 @@ class ConsoleParserService {
 		ipToRemove.forEach {
 			if (isWindows) {
 				String[] params = ["route", "delete", it, "mask", "255.255.255.255"]
-				new ProcessBuilder().command(params).start().waitFor()
+				executeProcess(params)
 				println(params.join(" "))
 			}
 		}
 	}
 
+	Set<IpParams> getRoutingIpParams() {
+		return ipParams
+	}
+
+	void deleteIpParams(IpParams ipParams) {
+		this.ipParams.remove(ipParams)
+	}
 }

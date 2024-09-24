@@ -37,6 +37,8 @@ class ParsedProcess {
 					if (ip != null && isIpAddress(ip) && ip != '0.0.0.0' && ip != '127.0.0.1') {
 						this.port = ipPort[1]
 						this.command = pids.find { it.length >= 2 && it[1] == line[5] }?[0] ?: ""
+					} else {
+						ip = null
 					}
 				}
 			}

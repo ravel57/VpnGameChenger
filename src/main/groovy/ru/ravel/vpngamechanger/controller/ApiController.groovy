@@ -29,4 +29,15 @@ class ApiController {
 		return ResponseEntity.ok().body(consoleParser.setIpParams(ipParams))
 	}
 
+	@GetMapping("/get-routing-ip-params")
+	ResponseEntity<Object> getRoutingIpParams() {
+		return ResponseEntity.ok().body(consoleParser.getRoutingIpParams())
+	}
+
+	@PostMapping("/delete-ip-params")
+	ResponseEntity<Object> deleteIpParams(@RequestBody IpParams ipParams) {
+		consoleParser.deleteIpParams(ipParams)
+		return ResponseEntity.ok().build()
+	}
+
 }
