@@ -20,6 +20,7 @@ class ConsoleParserService {
 	private final Logger logger = LoggerFactory.getLogger(this.class)
 
 	private static final boolean isWindows = System.getProperty("os.name").startsWith("Windows")
+	private static final boolean isLinux = System.getProperty("os.name").startsWith("Linux")
 
 
 	private static ArrayList<String[]> executeProcess(String[] processParams) {
@@ -47,8 +48,13 @@ class ConsoleParserService {
 				}
 				ipToRemove.addAll(list.collect { it.ip.toString() })
 				return list.toSet()
-			} else {
-				def target = System.getenv("target_device")
+			} else if (isLinux) {
+				def target = NetworkInterface.getNetworkInterfaces()
+						.findAll { it.name == "eth0" || it.name == "eno1" }
+						.collect { (it as NetworkInterface).interfaceAddresses[1] }
+						.first
+						.address
+						.getHostAddress()
 				def ipPorts = executeProcess("lsof", "-nPi", "@$target")
 				List<ParsedProcess> list = new ArrayList<>()
 				for (i in 1..<ipPorts.size()) {
@@ -60,13 +66,15 @@ class ConsoleParserService {
 				}.findAll {
 					it.command.toLowerCase().contains(name.toLowerCase())
 				}.toSet()
+			} else {
+				throw new RuntimeException("Unsupported system type")
 			}
 		} catch (IOException e) {
 			logger.error(e.message)
-			throw new RuntimeException(e)
+			throw new RuntimeException(e.message, e)
 		} catch (InterruptedException e) {
 			logger.error(e.message)
-			throw new RuntimeException(e)
+			throw new RuntimeException(e.message, e)
 		}
 	}
 
@@ -85,6 +93,10 @@ class ConsoleParserService {
 				try {
 					if (isWindows) {
 						String[] processParams = ["route", "add", it.ip, "MASK", "255.255.255.255", ipParams.gateWay]
+						executeProcess(processParams)
+						println(processParams.join(" "))
+					} else if (isLinux) {
+						String[] processParams = ["ip", "route", "add", it.ip, "via", ipParams.gateWay]
 						executeProcess(processParams)
 						println(processParams.join(" "))
 					}

@@ -19,15 +19,31 @@ class ParsedProcess {
 	private final Logger logger = LoggerFactory.getLogger(this.class)
 
 
+	/**
+	 * For Linux
+	 * @param rawHeader
+	 * @param line
+	 */
 	ParsedProcess(String[] rawHeader, String[] line) {
-		def ipPort = line[rawHeader.findIndexOf { it == 'NAME' }].split('->')[1].split(':')
-		this.ip = ipPort[0]
-		this.port = ipPort[1]
-		this.command = line[rawHeader.findIndexOf { it == 'COMMAND' }]
-		this.user = line[rawHeader.findIndexOf { it == 'USER' }]
+		String[] split = line[rawHeader.findIndexOf { it == 'NAME' }].split('->')
+		if (split.length > 1) {
+			def ipPort = split[1].split(':')
+			this.ip = ipPort[0]
+			if (ip != null && isIpAddress(ip) && ip != '0.0.0.0' && ip != '127.0.0.1') {
+				this.port = ipPort[1]
+				this.command = line[rawHeader.findIndexOf { it == 'COMMAND' }]
+				this.user = line[rawHeader.findIndexOf { it == 'USER' }]
+			} else {
+				this.ip = null
+			}
+		}
 	}
 
-
+/**
+ * For Windows
+ * @param line
+ * @param pids
+ */
 	ParsedProcess(String[] line, List<String[]> pids) {
 		try {
 			if (line.length >= 6) {
@@ -38,7 +54,7 @@ class ParsedProcess {
 						this.port = ipPort[1]
 						this.command = pids.find { it.length >= 2 && it[1] == line[5] }?[0] ?: ""
 					} else {
-						ip = null
+						this.ip = null
 					}
 				}
 			}

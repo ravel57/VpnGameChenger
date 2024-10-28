@@ -16,6 +16,7 @@ class VpnGameChangerApplication {
 	@Autowired
 	ConsoleParserService consoleParserService
 
+
 	static void main(String[] args) {
 		SpringApplication.run(VpnGameChangerApplication, args)
 	}
