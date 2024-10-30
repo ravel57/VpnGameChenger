@@ -11,8 +11,19 @@ import ru.ravel.vpngamechanger.model.IpParams
 @RequiredArgsConstructor
 class SaveRunner implements CommandLineRunner {
 
-	private static Set<IpParams> ipParams = new HashSet<>()
+	private Set<IpParams> ipParams = new HashSet<>()
+
+	private static saveRunner
+
 	private final static String saveFileName = "saved_data.json"
+
+	static SaveRunner getInstance() {
+		if (saveRunner == null) {
+			saveRunner = new SaveRunner()
+		}
+		return saveRunner
+	}
+
 
 	@Override
 	void run(String... args) throws Exception {
@@ -26,21 +37,25 @@ class SaveRunner implements CommandLineRunner {
 		}
 	}
 
-	static Set<IpParams> getIpParams() {
+
+	Set<IpParams> getIpParams() {
 		return ipParams
 	}
 
-	static void addIpParams(IpParams ipParams) {
+
+	void addIpParams(IpParams ipParams) {
 		this.ipParams.add(ipParams)
 		ObjectMapper mapper = new ObjectMapper()
 		File file = new File(saveFileName)
 		file.write(mapper.writeValueAsString(this.ipParams))
 	}
 
-	static void removeIpParams(IpParams ipParams) {
+
+	void removeIpParams(IpParams ipParams) {
 		this.ipParams.remove(ipParams)
 		ObjectMapper mapper = new ObjectMapper()
 		File file = new File(saveFileName)
 		file.write(mapper.writeValueAsString(this.ipParams))
 	}
+
 }

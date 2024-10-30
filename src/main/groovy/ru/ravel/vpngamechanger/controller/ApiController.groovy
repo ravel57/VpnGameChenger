@@ -1,6 +1,5 @@
 package ru.ravel.vpngamechanger.controller
 
-import lombok.RequiredArgsConstructor
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import ru.ravel.vpngamechanger.model.IpParams

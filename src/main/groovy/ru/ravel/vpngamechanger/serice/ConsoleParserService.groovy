@@ -1,5 +1,6 @@
 package ru.ravel.vpngamechanger.serice
 
+import jakarta.annotation.PostConstruct
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Async
@@ -15,12 +16,21 @@ import java.util.concurrent.TimeUnit
 @Service
 class ConsoleParserService {
 
-	private final Set<IpParams> ipParams = SaveRunner.ipParams
+	private Set<IpParams> ipParams
+	private SaveRunner saveRunner = SaveRunner.getInstance()
+
 	private final Set<String> ipToRemove = new HashSet<>()
 	private final Logger logger = LoggerFactory.getLogger(this.class)
 
 	private static final boolean isWindows = System.getProperty("os.name").startsWith("Windows")
 	private static final boolean isLinux = System.getProperty("os.name").startsWith("Linux")
+
+
+	@PostConstruct
+	private void init() {
+		saveRunner.run()
+		ipParams = saveRunner.getIpParams()
+	}
 
 
 	private static ArrayList<String[]> executeProcess(String[] processParams) {
@@ -39,10 +49,10 @@ class ConsoleParserService {
 	Set<ParsedProcess> getConsoleInfoByName(String name) {
 		try {
 			if (isWindows) {
-				def IpPorts = executeProcess("netstat", "-ano")
+				def netstat = executeProcess("netstat", "-ano")
 				def pids = executeProcess("tasklist")
-				def list = IpPorts.collect {
-					str -> new ParsedProcess(str, pids)
+				def list = netstat.collect { linesOfIpInfo ->
+					new ParsedProcess(linesOfIpInfo, pids)
 				}.findAll {
 					it?.command?.toLowerCase()?.contains(name.toLowerCase())
 				}
@@ -52,8 +62,8 @@ class ConsoleParserService {
 				def target = NetworkInterface.getNetworkInterfaces()
 						.findAll { it.name == "eth0" || it.name == "eno1" }
 						.collect { (it as NetworkInterface).interfaceAddresses[1] }
-						.first
-						.address
+						.first()
+						.getAddress()
 						.getHostAddress()
 				def ipPorts = executeProcess("lsof", "-nPi", "@$target")
 				List<ParsedProcess> list = new ArrayList<>()
@@ -70,18 +80,18 @@ class ConsoleParserService {
 				throw new RuntimeException("Unsupported system type")
 			}
 		} catch (IOException e) {
-			logger.error(e.message)
-			throw new RuntimeException(e.message, e)
+			logger.error(e.message, e)
+			throw new RuntimeException(e)
 		} catch (InterruptedException e) {
-			logger.error(e.message)
-			throw new RuntimeException(e.message, e)
+			logger.error(e.message, e)
+			throw new RuntimeException(e)
 		}
 	}
 
 
 	void setIpParams(IpParams ipParams) {
 		this.ipParams.add(ipParams)
-		SaveRunner.addIpParams(ipParams)
+		saveRunner.addIpParams(ipParams)
 	}
 
 
@@ -123,7 +133,7 @@ class ConsoleParserService {
 
 	Set<IpParams> getRoutingIpParams() {
 		if (ipParams.isEmpty()) {
-			return SaveRunner.ipParams
+			return saveRunner.getIpParams()
 		} else {
 			return ipParams
 		}
@@ -131,6 +141,6 @@ class ConsoleParserService {
 
 	void deleteIpParams(IpParams ipParams) {
 		this.ipParams.remove(ipParams)
-		SaveRunner.removeIpParams(ipParams)
+		saveRunner.removeIpParams(ipParams)
 	}
 }

@@ -11,12 +11,13 @@ class ParsedProcess {
 	String port
 	String user
 
+	private static final def ipRegex = /^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})$/
+	private final Logger logger = LoggerFactory.getLogger(this.class)
+
+
 	static boolean isIpAddress(String ip) {
 		return ip ==~ ipRegex
 	}
-
-	private static final def ipRegex = /^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})$/
-	private final Logger logger = LoggerFactory.getLogger(this.class)
 
 
 	/**
@@ -39,11 +40,12 @@ class ParsedProcess {
 		}
 	}
 
-/**
- * For Windows
- * @param line
- * @param pids
- */
+
+	/**
+	 * For Windows
+	 * @param line
+	 * @param pids
+	 */
 	ParsedProcess(String[] line, List<String[]> pids) {
 		try {
 			if (line.length >= 6) {
@@ -63,5 +65,42 @@ class ParsedProcess {
 		}
 	}
 
+
+	@Override
+	String toString() {
+		return "ParsedProcess{" +
+				"command='" + command + '\'' +
+				", ip='" + ip + '\'' +
+				", port='" + port + '\'' +
+				", user='" + user + '\'' +
+				'}';
+	}
+
+
+	boolean equals(o) {
+		if (this.is(o)) return true
+		if (o == null || getClass() != o.class) return false
+
+		ParsedProcess that = (ParsedProcess) o
+
+		if (command != that.command) return false
+		if (ip != that.ip) return false
+		if (logger != that.logger) return false
+		if (port != that.port) return false
+		if (user != that.user) return false
+
+		return true
+	}
+
+
+	int hashCode() {
+		int result
+		result = (command != null ? command.hashCode() : 0)
+		result = 31 * result + (ip != null ? ip.hashCode() : 0)
+		result = 31 * result + (port != null ? port.hashCode() : 0)
+		result = 31 * result + (user != null ? user.hashCode() : 0)
+		result = 31 * result + (logger != null ? logger.hashCode() : 0)
+		return result
+	}
 
 }
